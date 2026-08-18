@@ -1,13 +1,10 @@
--- ============================================================
+--
 -- E-Commerce Discount & Customer Segmentation Analysis
 -- PostgreSQL SQL Pipeline
--- ============================================================
+-
 -- Purpose:
 --   Rebuild the data preparation and analytical views used by
 --   the Tableau project from data/dataset_raw.csv.
---
--- Source dataset:
---   5,000 order-level records
 --
 -- Main outputs:
 --   vw_ecommerce_sales_clean
@@ -25,21 +22,9 @@
 --   vw_customer_segment_summary
 --   vw_discount_by_customer_segment
 --
--- Notes:
---   1. This script is written for PostgreSQL.
---   2. Import data/dataset_raw.csv into ecommerce_sales_raw
---      after creating the table below.
---   3. The CSV column order must follow:
---      Order ID, Order Date, Customer Name, Region, City,
---      Category, Sub-Category, Product Name, Quantity,
---      Unit Price, Discount, Sales, Profit, Payment Mode
--- ============================================================
 
-
--- ============================================================
 -- 1. RAW DATA TABLE
--- ============================================================
-
+--   
 CREATE TABLE IF NOT EXISTS ecommerce_sales_raw (
     order_id        BIGINT,
     order_date      DATE,
@@ -57,19 +42,8 @@ CREATE TABLE IF NOT EXISTS ecommerce_sales_raw (
     payment_mode    TEXT
 );
 
--- Import example using psql:
--- \copy ecommerce_sales_raw (
---     order_id, order_date, customer_name, region, city,
---     category, sub_category, product_name, quantity,
---     unit_price, discount, sales, profit, payment_mode
--- )
--- FROM 'data/dataset_raw.csv'
--- WITH (FORMAT csv, HEADER true, DELIMITER ',', ENCODING 'UTF8');
-
-
--- ============================================================
 -- 2. DATA CLEANING & TRANSFORMATION
--- ============================================================
+-- 
 
 DROP VIEW IF EXISTS vw_discount_by_customer_segment;
 DROP VIEW IF EXISTS vw_customer_segment_summary;
@@ -174,9 +148,9 @@ SELECT
 FROM vw_ecommerce_sales_clean;
 
 
--- ============================================================
+
 -- 3. DISCOUNT, SALES & PROFITABILITY ANALYSIS
--- ============================================================
+--
 
 CREATE VIEW vw_category_performance AS
 SELECT
@@ -346,9 +320,9 @@ FROM vw_ecommerce_sales_clean
 GROUP BY region, city;
 
 
--- ============================================================
+--
 -- 4. CUSTOMER FEATURE ENGINEERING
--- ============================================================
+--
 
 CREATE VIEW vw_customer_features AS
 WITH customer_base AS (
@@ -453,9 +427,9 @@ LEFT JOIN favorite_payment fp
     ON cb.customer_key = fp.customer_key;
 
 
--- ============================================================
+--
 -- 5. RFM & CUSTOMER SEGMENTATION
--- ============================================================
+-- 
 
 CREATE VIEW vw_customer_segments AS
 WITH scored AS (
@@ -603,10 +577,9 @@ SELECT
 FROM final_segment;
 
 
--- ============================================================
+-- 
 -- 6. CUSTOMER SEGMENT SUMMARY
--- ============================================================
-
+-- 
 CREATE VIEW vw_repeat_customer_summary AS
 SELECT
     repeat_status,
@@ -647,10 +620,9 @@ FROM vw_customer_segments
 GROUP BY customer_segment;
 
 
--- ============================================================
+--
 -- 7. DISCOUNT PERFORMANCE BY CUSTOMER SEGMENT
--- ============================================================
-
+--
 CREATE VIEW vw_discount_by_customer_segment AS
 SELECT
     cs.customer_segment,
@@ -681,9 +653,9 @@ GROUP BY
     ec.discount_pct;
 
 
--- ============================================================
+-- 
 -- 8. OPTIONAL INDEXES
--- ============================================================
+--
 -- These indexes improve repeated analysis on the raw table.
 
 CREATE INDEX IF NOT EXISTS idx_ecommerce_raw_order_id
@@ -702,10 +674,9 @@ CREATE INDEX IF NOT EXISTS idx_ecommerce_raw_discount
     ON ecommerce_sales_raw(discount);
 
 
--- ============================================================
+-- 
 -- 9. VALIDATION QUERIES
--- ============================================================
-
+-- 
 -- Expected from the supplied project dataset:
 --   cleaned orders       : 5,000
 --   unique customers     : 4,844
