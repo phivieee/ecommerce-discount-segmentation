@@ -1,0 +1,10 @@
+# OS / temp files
+.DS_Store
+Thumbs.db
+~$*
+*.tmp
+
+# Python
+__pycache__/
+.ipynb_checkpoints/
+*.pyc
